@@ -1,37 +1,86 @@
+controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
+    if (playerSoFar.isHittingTile(CollisionDirection.Bottom)) {
+        playerFall = 5
+    }
+})
+controller.right.onEvent(ControllerButtonEvent.Repeated, function () {
+    if (playerSoFar.isHittingTile(CollisionDirection.Bottom)) {
+        if (playerSpeed < 0) {
+            playerSpeed += 1
+            pause(200)
+        }
+        if (playerSpeed > 2) {
+            playerSpeed += 1
+            pause(400)
+        }
+    }
+})
 controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
     if (playerSpeed > 0) {
         playerSpeed = 1
-        for (let index = 0; index < 10; index++) {
-            playerSpeed += -0.2
-            pause(100)
+        if (playerSpeed == 0) {
+            playerSpeed += -1
         }
-    } else {
-        playerSpeed += -1
-        pause(2000)
+    }
+    if (playerSpeed == 0) {
+        playerSpeed += -2
+    }
+    if (playerSoFar.isHittingTile(CollisionDirection.Right)) {
+        playerSpeed = -2
+    }
+})
+controller.right.onEvent(ControllerButtonEvent.Released, function () {
+    if (!(controller.right.isPressed())) {
+        if (!(controller.left.isPressed())) {
+            if (playerSpeed > 0) {
+                playerSpeed += 0.5
+                pause(100)
+            }
+        }
+    }
+})
+controller.left.onEvent(ControllerButtonEvent.Released, function () {
+    if (!(controller.left.isPressed())) {
+        if (!(controller.right.isPressed())) {
+            if (playerSpeed < 0) {
+                playerSpeed += -0.5
+                pause(100)
+            }
+        }
     }
 })
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
     if (playerSpeed < 0) {
         playerSpeed = -1
-        for (let index = 0; index < 10; index++) {
-            playerSpeed += -0.2
-            pause(100)
+        if (playerSpeed == 0) {
+            playerSpeed += 1
         }
-    } else {
-        playerSpeed += 1
-        pause(2000)
+    }
+    if (playerSpeed == 0) {
+        playerSpeed += 2
+    }
+    if (playerSoFar.isHittingTile(CollisionDirection.Left)) {
+        playerSpeed = 2
+    }
+})
+controller.left.onEvent(ControllerButtonEvent.Repeated, function () {
+    if (playerSoFar.isHittingTile(CollisionDirection.Bottom)) {
+        if (playerSpeed > 0) {
+            playerSpeed += -1
+            pause(200)
+        }
+        if (playerSpeed < -2) {
+            playerSpeed += -1
+            pause(400)
+        }
     }
 })
 let playerSpeed = 0
-let playerFall = 1
+let playerSoFar: Sprite = null
+let playerFall = 0
+playerFall = 1
 tiles.setCurrentTilemap(tilemap`level1`)
-let playerSoFar = sprites.create(img`
-    ................................
-    ................................
-    ................................
-    ................................
-    ................................
-    ................................
+playerSoFar = sprites.create(img`
     ................................
     ...........dddddddddd...........
     ...........dddddddddd...........
@@ -44,24 +93,35 @@ let playerSoFar = sprites.create(img`
     ...........dddddddddd...........
     ...........dddddddddd...........
     ...........dddddddddd...........
-    ................................
-    ................................
-    ................................
-    ................................
-    ................................
+    ...........dddddddddd...........
+    ...........dddddddddd...........
+    ...........dddddddddd...........
+    ...........dddddddddd...........
+    ...........dddddddddd...........
+    ...........dddddddddd...........
+    ...........dddddddddd...........
+    ...........dddddddddd...........
+    ...........dddddddddd...........
+    ...........dddddddddd...........
+    ...........dddddddddd...........
     ................................
     `, SpriteKind.Player)
 playerSoFar.setStayInScreen(true)
 scene.cameraFollowSprite(playerSoFar)
 forever(function () {
     if (playerSoFar.isHittingTile(CollisionDirection.Bottom)) {
-        playerSoFar.vy = 0
-    } else {
-        playerSoFar.vy += playerFall
-        playerFall += playerSoFar.vy - playerFall * 1.5
+        playerFall = 0
+    }
+    if (!(playerSoFar.isHittingTile(CollisionDirection.Bottom))) {
+        playerFall += 0.2
+        playerFall += playerFall * 1.1
+        if (playerFall > 10) {
+            playerFall = 10
+        }
         pause(200)
     }
 })
 forever(function () {
-    playerSoFar.vx += playerSpeed * 7
+    playerSoFar.vx = playerSpeed * 35
+    playerSoFar.vy = playerFall * 35
 })
